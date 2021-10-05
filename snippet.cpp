@@ -32,32 +32,33 @@ int main(int argc, char** argv) {
     // string input_kff_outstr_with_count=string(argv[1]);
 	// string input_spss_fasta_without_count=string(argv[2]);
 	// string output_spss_fasta_with_count=string(argv[4]);
+    // string output_spss_fasta_with_count=string(argv[5]);
 
 
-string input_kff_outstr_with_count=string(argv[1]);
-	string input_spss_fasta_without_count=string(argv[2]);
-	string output_spss_fasta_with_count=string(argv[4]);
+    string input_kff_outstr_with_count="example/m_88095.outstr";
+	string input_spss_fasta_without_count="example/m_88095.fa.essd";
+	string output_spss_fasta_with_count="example/m_88095.instr";
     string minimizer("AAATAACACA");
 
 
     //SOME VARIABLES TO PLAY WITH
-    //int kmer_size(32);
-	int kmer_size = (int) strtol(argv[3], NULL, 10);
+    int kmer_size(32);
+	//int kmer_size = (int) strtol(argv[3], NULL, 10);
     int core_number(4);
-    int minimizer_size(16);
+    int minimizer_size(8);
     int file_number_exponent(4);
     int subsampling_bits(0);
 	
 
     //INDEX INITIZALIZATION
     //Index Initialization with a given kmer size
-    //kmer_Set_Light blight_index_5(kmer_size);
+    kmer_Set_Light blight_index_5(kmer_size);
 	
     //Index Initialization allowing the use  of multiple thread for faster construction and queries (default is 1)
     //kmer_Set_Light blight_index_2(kmer_size, core_number);
 
     //Index Initialization with a given minimizer size (default is 10)
-    kmer_Set_Light blight_index_5(kmer_size, core_number, minimizer_size);
+    //kmer_Set_Light blight_index_5(kmer_size, core_number, minimizer_size);
 
     //Index Initialization allowing a custom  amount of temporary file (default is 4 for 256 files)
     //kmer_Set_Light blight_index_4(kmer_size, core_number, minimizer_size, file_number_exponent);
@@ -128,12 +129,12 @@ cout<<"Complete1!"<<endl;
             //f_out<<spell<<" "; print actual seq
             //mod: print reverse complement and without mini
             uint64_t minimizer_pos=spell.find(minimizer);
-            if(minimizer_pos != std::string::npos){
+            if(minimizer_pos == std::string::npos){
                 spell = reverseComplement(spell);
                 minimizer_pos=spell.find(minimizer);
             }
             if(minimizer_pos == std::string::npos){
-                cerr<<"minimizer error";
+                cerr<<"minimizer error"<<endl;
                 exit(2);
             }
             f_pos<<minimizer_pos+"\n";
