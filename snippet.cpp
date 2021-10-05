@@ -1,6 +1,23 @@
 #include "blight.h"
 using namespace std;
 
+
+string reverseComplement(string base) {
+    size_t len = base.length();
+    char* out = new char[len + 1];
+    out[len] = '\0';
+    for (int i = 0; i < len; i++) {
+        if (base[i] == 'A') out[len - i - 1] = 'T';
+        else if (base[i] == 'C') out[len - i - 1] = 'G';
+        else if (base[i] == 'G') out[len - i - 1] = 'C';
+        else if (base[i] == 'T') out[len - i - 1] = 'A';
+    }
+    string outString(out);
+    free(out);
+    return outString;
+}
+
+
 vector<string> string_split (const string &s, char delim) {
     vector<string> result;
     stringstream ss (s);
@@ -20,25 +37,27 @@ int main(int argc, char** argv) {
 string input_kff_outstr_with_count=string(argv[1]);
 	string input_spss_fasta_without_count=string(argv[2]);
 	string output_spss_fasta_with_count=string(argv[4]);
+    string minimizer("AAATAACACA");
+
 
     //SOME VARIABLES TO PLAY WITH
     //int kmer_size(32);
 	int kmer_size = (int) strtol(argv[3], NULL, 10);
     int core_number(4);
-    int minimizer_size(8);
+    int minimizer_size(16);
     int file_number_exponent(4);
     int subsampling_bits(0);
 	
 
     //INDEX INITIZALIZATION
     //Index Initialization with a given kmer size
-    kmer_Set_Light blight_index_5(kmer_size);
+    //kmer_Set_Light blight_index_5(kmer_size);
 	
     //Index Initialization allowing the use  of multiple thread for faster construction and queries (default is 1)
     //kmer_Set_Light blight_index_2(kmer_size, core_number);
 
     //Index Initialization with a given minimizer size (default is 10)
-    //kmer_Set_Light blight_index_5(kmer_size, core_number, minimizer_size);
+    kmer_Set_Light blight_index_5(kmer_size, core_number, minimizer_size);
 
     //Index Initialization allowing a custom  amount of temporary file (default is 4 for 256 files)
     //kmer_Set_Light blight_index_4(kmer_size, core_number, minimizer_size, file_number_exponent);
@@ -88,6 +107,7 @@ cout<<"Complete1!"<<endl;
      f_sset.close();
     ifstream f_spss(input_spss_fasta_without_count);
     ofstream f_out(output_spss_fasta_with_count);
+    ofstream f_pos("position");
     int max_len=-1;
     while ( getline (f_spss,line) )
     {
@@ -102,10 +122,23 @@ cout<<"Complete1!"<<endl;
             hash_vector=blight_index_5.get_hashes_query(spell);
             
             if(spell.size()>max_len){
-                max_len=spell.size()''
+                max_len=spell.size();
             }
 
-            f_out<<spell<<" ";
+            //f_out<<spell<<" "; print actual seq
+            //mod: print reverse complement and without mini
+            uint64_t minimizer_pos=spell.find(minimizer);
+            if(minimizer_pos != std::string::npos){
+                spell = reverseComplement(spell);
+                minimizer_pos=spell.find(minimizer);
+            }
+            if(minimizer_pos == std::string::npos){
+                cerr<<"minimizer error";
+                exit(2);
+            }
+            f_pos<<minimizer_pos+"\n";
+            spell=spell.substr(0, minimizer_pos)+spell.substr(minimizer_pos+minimizer.size(), spell.size()-minimizer_pos-minimizer.size());
+            f_out<<spell<<" "; 
             for(int i(0);i<hash_vector.size();++i){
                 //cout<<kmer<< " " << hash_vector[i]<<' ';
                  int indice(hash_vector[i]);
@@ -121,7 +154,9 @@ cout<<"Complete1!"<<endl;
 
      }
      f_out.close();
+     f_pos.close();
      f_sset.close();
+
      cout<<"Complete3!"<<endl;
      return 0;
 }
