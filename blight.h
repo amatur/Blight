@@ -36,12 +36,12 @@
 
 
 // Use 64 bits int to represent kmer up to k=32
-#define kmer uint64_t
+// #define kmer uint64_t
 
 
 
 // Use 128 bits int to represent kmer up to k=64
-// #define kmer __uint128_t
+#define kmer __uint128_t
 
 
 
