@@ -90,7 +90,7 @@ cout<<"Complete1!"<<endl;
         stringstream ss(line);
         string kmer = "";
         ss >> kmer;
-        cout<<kmer<<endl;
+        //cout<<kmer<<endl;
             //We print the identifier of the query performed on the loaded index
             hash_vector=blight_index_5.get_hashes_query(kmer);
             for(int i(0);i<hash_vector.size();++i){
@@ -108,8 +108,9 @@ cout<<"Complete1!"<<endl;
      f_sset.close();
     ifstream f_spss(input_spss_fasta_without_count);
     ofstream f_out(output_spss_fasta_with_count);
-    ofstream f_pos("position");
-    int max_len=-1;
+    ofstream f_pos("example/m_88095.pos");
+     ofstream f_maxlen("example/m_88095.maxlen");
+    uint64_t max_len=0;
     while ( getline (f_spss,line) )
     {
         stringstream ss(line);
@@ -121,14 +122,11 @@ cout<<"Complete1!"<<endl;
 
             //We print the identifier of the query performed on the loaded index
             hash_vector=blight_index_5.get_hashes_query(spell);
-            
-            if(spell.size()>max_len){
-                max_len=spell.size();
-            }
+           
 
             //f_out<<spell<<" "; print actual seq
             //mod: print reverse complement and without mini
-            uint64_t minimizer_pos=spell.find(minimizer);
+            size_t minimizer_pos=spell.find(minimizer);
             if(minimizer_pos == std::string::npos){
                 spell = reverseComplement(spell);
                 minimizer_pos=spell.find(minimizer);
@@ -137,8 +135,16 @@ cout<<"Complete1!"<<endl;
                 cerr<<"minimizer error"<<endl;
                 exit(2);
             }
-            f_pos<<minimizer_pos+"\n";
-            spell=spell.substr(0, minimizer_pos)+spell.substr(minimizer_pos+minimizer.size(), spell.size()-minimizer_pos-minimizer.size());
+            
+             f_pos<<minimizer_pos<<endl;
+            
+            if((uint64_t) spell.length()>max_len){
+                max_len=(uint64_t) spell.length();
+                cout<<max_len<<endl;
+            }
+            
+             spell=spell.substr(0, minimizer_pos)+spell.substr(minimizer_pos+minimizer.length(), spell.length()-minimizer_pos-minimizer.length());
+            
             f_out<<spell<<" "; 
             for(int i(0);i<hash_vector.size();++i){
                 //cout<<kmer<< " " << hash_vector[i]<<' ';
@@ -157,6 +163,10 @@ cout<<"Complete1!"<<endl;
      f_out.close();
      f_pos.close();
      f_sset.close();
+
+     max_len=max_len-kmer_size+1;
+     f_maxlen<<max_len<<endl;
+     f_maxlen.close();
 
      cout<<"Complete3!"<<endl;
      return 0;
