@@ -4,7 +4,7 @@ CC=gcc
 
 
 #Here snippet should be your program
-all: snippet bench_blight
+all: blight-ess bench_blight
 #bench_blight is only here for benchmark purpose and can be removed
 
 
@@ -23,7 +23,7 @@ BLO=blight.o utils.o
 
 
 #Here  you should compile be your program using Blight instead of snippet
-snippet: snippet.o $(BLO) $(LZ4O)
+blight-ess: snippet.o $(BLO) $(LZ4O)
 	$(CXX) -o $@ $^ $(CFLAGS_BLIGHT)
 
 snippet.o: snippet.cpp
@@ -67,7 +67,7 @@ lz4/xxhash.o: lz4/xxhash.c $(INC)
 
 clean:
 	rm -rf *.o
-	rm -rf snippet bench_blight
+	rm -rf blight-ess bench_blight
 	
 
 
