@@ -34,31 +34,51 @@ int main(int argc, char** argv) {
 	// string output_spss_fasta_with_count=string(argv[4]);
     // string output_spss_fasta_with_count=string(argv[5]);
 
+    int kmer_size = (int) strtol(argv[1], NULL, 10);
+    string basename = string(argv[2]);
 
-    string input_kff_outstr_with_count="example/m_88095.outstr";
-	string input_spss_fasta_without_count="example/m_88095.fa.essd";
-	string output_spss_fasta_with_count="example/m_88095.instr";
-    string minimizer("AAATAACACA");
+    //argv1 = k
+    //argv2 = basename
+    // string input_kff_outstr_with_count="example/m_88095.outstr";
+	// string input_spss_fasta_without_count="example/m_88095.fa.essd";
+	// string output_spss_fasta_with_count="example/m_88095.instr";
+    // string input_minimizer_file="example/m_88095.minimizer";
+    // string minimizer("AAATAACACA");
+    // string output_position_file = "example/m_88095.pos";
+    // string output_maxlen_file = "example/m_88095.maxlen";
+    //int kmer_size(32);
+
+    string input_kff_outstr_with_count=basename+".outstr";
+	string input_spss_fasta_without_count=basename+".fa.essd";
+	string output_spss_fasta_with_count=basename+".instr";
+    string input_minimizer_file=basename+".minimizer";
+    string output_position_file = basename+".pos";
+    string output_maxlen_file = basename+".maxlen";
+
+    //read minimizer
+    std::string minimizer;
+    std::ifstream infile_minimizer;
+    infile_minimizer.open(input_minimizer_file);
+    infile_minimizer >> minimizer;
+    infile_minimizer.close();
 
 
-    //SOME VARIABLES TO PLAY WITH
-    int kmer_size(32);
-	//int kmer_size = (int) strtol(argv[3], NULL, 10);
-    int core_number(4);
-    int minimizer_size(8);
+	//SOME VARIABLES TO PLAY WITH
+    int core_number(40);
+    int minimizer_size(minimizer.size()-1);
     int file_number_exponent(4);
     int subsampling_bits(0);
 	
 
     //INDEX INITIZALIZATION
     //Index Initialization with a given kmer size
-    kmer_Set_Light blight_index_5(kmer_size);
+    //kmer_Set_Light blight_index_5(kmer_size);
 	
     //Index Initialization allowing the use  of multiple thread for faster construction and queries (default is 1)
     //kmer_Set_Light blight_index_2(kmer_size, core_number);
 
     //Index Initialization with a given minimizer size (default is 10)
-    //kmer_Set_Light blight_index_5(kmer_size, core_number, minimizer_size);
+    kmer_Set_Light blight_index_5(kmer_size, core_number, minimizer_size);
 
     //Index Initialization allowing a custom  amount of temporary file (default is 4 for 256 files)
     //kmer_Set_Light blight_index_4(kmer_size, core_number, minimizer_size, file_number_exponent);
@@ -108,8 +128,8 @@ cout<<"Complete1!"<<endl;
      f_sset.close();
     ifstream f_spss(input_spss_fasta_without_count);
     ofstream f_out(output_spss_fasta_with_count);
-    ofstream f_pos("example/m_88095.pos");
-     ofstream f_maxlen("example/m_88095.maxlen");
+    ofstream f_pos(output_position_file);
+     ofstream f_maxlen(output_maxlen_file);
     uint64_t max_len=0;
     while ( getline (f_spss,line) )
     {
@@ -143,7 +163,7 @@ cout<<"Complete1!"<<endl;
                 cout<<max_len<<endl;
             }
             
-             spell=spell.substr(0, minimizer_pos)+spell.substr(minimizer_pos+minimizer.length(), spell.length()-minimizer_pos-minimizer.length());
+            //removing minimizer: spell=spell.substr(0, minimizer_pos)+spell.substr(minimizer_pos+minimizer.length(), spell.length()-minimizer_pos-minimizer.length());
             
             f_out<<spell<<" "; 
             for(int i(0);i<hash_vector.size();++i){
