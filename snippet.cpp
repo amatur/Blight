@@ -143,11 +143,12 @@ cout<<"Complete1!"<<endl;
             //We print the identifier of the query performed on the loaded index
             hash_vector=blight_index_5.get_hashes_query(spell);
            
-
+            bool reversed=false;
             //f_out<<spell<<" "; print actual seq
             //mod: print reverse complement and without mini
             size_t minimizer_pos=spell.find(minimizer);
             if(minimizer_pos == std::string::npos){
+                reversed=true;
                 spell = reverseComplement(spell);
                 minimizer_pos=spell.find(minimizer);
             }
@@ -168,7 +169,9 @@ cout<<"Complete1!"<<endl;
             f_out<<spell<<" "; 
             for(int i(0);i<hash_vector.size();++i){
                 //cout<<kmer<< " " << hash_vector[i]<<' ';
-                 int indice(hash_vector[i]);
+
+                int modified_i = (reversed? hash_vector.size()-i-1: i);
+                 int indice(hash_vector[modified_i]);
                 //If the kmer is in the index its indice will be a position in the abundance vector
                 if(indice!=-1){
                     if(i!=0){
